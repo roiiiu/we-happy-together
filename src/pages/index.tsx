@@ -1,9 +1,10 @@
 import type { Component } from 'solid-js'
 import { createSignal } from 'solid-js'
 import { useNavigate } from '@solidjs/router'
-import Button from '../components/Button'
+import Button from '../components/ui/Button'
 import { AuthGuard } from '../utils/auth'
 import supabase from '../utils/supabase'
+import Input from '~/components/ui/Input'
 
 const Index: Component = () => {
   AuthGuard()
@@ -46,11 +47,13 @@ const Index: Component = () => {
 
   return (
     <div class='flex flex-col h-screen w-full items-center justify-center'>
-      <input class='border' value={roomId()} onChange={(e) => { setRoomId(e.target.value) }}/>
-      <Button onClick={createRoom} title={'创建房间'}/>
-      <input class='border' value={joinRoomId()} onChange={(e) => { setJoinRoomId(e.target.value) }}/>
-      <Button onClick={joinRoom} title={'加入房间'}/>
-      <Button onClick={logout} title={'登出'}/>
+      <div class='w-80 h-90 border shadow-lg rounded-lg flex flex-col p-5 justify-between'>
+        <Input label='房间id' value={roomId()} setValue={setRoomId} />
+        <Button onClick={createRoom} title={'创建房间'} />
+        <Input label='房间id' value={joinRoomId()} setValue={ setJoinRoomId} />
+        <Button onClick={joinRoom} title={'加入房间'} />
+        <Button onClick={logout} title={'登出'} />
+      </div>
     </div>
   )
 }

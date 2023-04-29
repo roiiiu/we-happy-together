@@ -2,6 +2,8 @@ import type { Component } from 'solid-js'
 import { createSignal, onMount } from 'solid-js'
 import { useNavigate } from '@solidjs/router'
 import supabase from '../utils/supabase'
+import Input from '~/components/ui/Input'
+import Button from '~/components/ui/Button'
 
 const Login: Component = () => {
   const [email, setEmail] = createSignal('')
@@ -24,11 +26,13 @@ const Login: Component = () => {
   }
 
   return (
-  <div class='flex flex-col items-center justify-center'>
-    <input class='border' value={email()} onChange={(e) => { setEmail(e.target.value) }}/>
-    <input class='border' value={password()} onChange={(e) => { setPassword(e.target.value) }}/>
-    <button onClick={login}>Login</button>
-  </div>
+    <div class='flex flex-col items-center justify-center h-screen w-full'>
+      <div class='w-80 h-60 flex flex-col justify-between border shadow-lg p-5 rounded-lg'>
+        <Input label='邮箱' value={email()} setValue={setEmail} />
+        <Input type='password' label='密码' value={password()} setValue={setPassword} />
+        <Button title='登录' onClick={login}/>
+      </div>
+    </div>
   )
 }
 

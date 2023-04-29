@@ -5,19 +5,24 @@ import { For, createSignal, onMount } from 'solid-js'
 import Artplayer from 'artplayer'
 import supabase from '../../utils/supabase'
 import { AuthGuard } from '../../utils/auth'
-import Button from '../../components/Button'
+import Button from '../../components/ui/Button'
+import Input from '~/components/ui/Input'
+import ChatInput from '~/components/ChatInput'
+import type { ChatMessage } from '~/types'
+import ChatBubble from '~/components/ui/ChatBubble'
 
 const Id: Component = () => {
   AuthGuard()
   const { id } = useParams<{ id: string }>()
   const channel = supabase.channel(id)
   const [isAdmin, setIsAdmin] = createSignal(false)
-  const [input, setInput] = createSignal('')
+  const [message, setMessage] = createSignal('')
   const [videoUrl, setVideoUrl] = createSignal('')
-  const [messageList, setMessageList] = createSignal<string[]>([])
+  const [messageList, setMessageList] = createSignal<ChatMessage[]>([])
   const navigate = useNavigate()
   let player: Artplayer
   let userId: string
+  let username: string
 
   onMount(async () => {
     const { data: roomData } = await supabase.from('Auditorium').select('*').eq('room_id', id)
@@ -27,7 +32,12 @@ const Id: Component = () => {
     const { data: userData } = await supabase.auth.getUser()
     if (!userData.user)
       return
+
     userId = userData.user.id
+    const { data: usernameData } = await supabase.from('Users').select('*').eq('user_id', userData.user.id)
+    if (usernameData && usernameData.length > 0)
+      username = usernameData[0].username ?? ''
+    console.log(username)
 
     const { data } = await supabase.from('Auditorium').select('*').eq('room_id', id).eq('owner', userId)
     if (data && data.length > 0)
@@ -45,7 +55,7 @@ const Id: Component = () => {
       url: videoUrl(),
       volume: 0.5,
       pip: true,
-      autoSize: true,
+      autoSize: false,
       autoMini: true,
       setting: true,
       loop: true,
@@ -55,10 +65,9 @@ const Id: Component = () => {
       fullscreen: true,
       fullscreenWeb: true,
       muted: true,
-      subtitleOffset: true,
       miniProgressBar: true,
       mutex: true,
-      theme: '#ffffff',
+      theme: '#FF9000',
       moreVideoAttr: {
         crossOrigin: 'anonymous',
       },
@@ -118,6 +127,7 @@ const Id: Component = () => {
 
   channel
     .on('broadcast', { event: 'chat-message' }, (payload) => {
+      console.log(payload)
       setMessageList(pre => [...pre, payload.payload])
     }).on('broadcast', { event: 'play' }, () => {
       player.play()
@@ -160,10 +170,18 @@ const Id: Component = () => {
     channel.send({
       type: 'broadcast',
       event: 'chat-message',
-      payload: input(),
+      payload: {
+        username,
+        message: message(),
+      },
     })
-    setMessageList(pre => [...pre, input()])
-    setInput('')
+    setMessageList(pre => [...pre,
+      {
+        username,
+        message: message(),
+      },
+    ])
+    setMessage('')
   }
 
   async function closeRoom() {
@@ -183,22 +201,42 @@ const Id: Component = () => {
   }
 
   return (
-    <div class='grid grid-cols-12 items-center justify-center h-full gap-5'>
-      <div id="art-player" class='h-full col-span-10'></div>
-      <div class='flex flex-col col-span-2 h-full'>
-        <div class='flex flex-col flex-1'>
+    <div class='grid md:grid-cols-12 md:grid-rows-1 grid-rows-12 items-center justify-center h-full '>
+      <div class='flex flex-col h-full md:col-span-9 justify-start md:row-span-1 row-span-3'>
+        <div id="art-player" class='w-full h-auto aspect-ratio-video object-contain'></div>
+        {/* Room Information */}
+        <div class='flex-1 w-full flex items-center justify-start p-3 of-hidden border'>
+          <div class='flex items-start gap-2'>
+            <img src="/img.jpg" class='w-12 h-12 rounded-full'></img>
+            <div class='flex flex-col items-start'>
+              <h1 class='font-bold text-xl'>{id}</h1>
+              <h2 class=' '>Description,Description,Description,Description</h2>
+            </div>
+          </div>
+        </div>
+      </div>
+      {/* Chat */}
+      <div class='flex flex-col md:col-span-3 md:row-span-1 row-span-9 h-full gap-2 p-3'>
+        <div class='flex flex-col flex-1 of-y-auto'>
           <For each={messageList()}>
             {(message, idx) => (
-              <div>{message}</div>
+              <ChatBubble username={message.username} message={message.message}/>
             )}
           </For>
         </div>
-        <input class='border' value={input()} onChange={(e) => { setInput(e.target.value) }} />
-        {isAdmin() ? <div>admin</div> : <div>not admin</div>}
-        <input class='border' value={videoUrl()} onChange={(e) => { setVideoUrl(e.target.value) }}/>
+        {isAdmin()
+          ? <>
+        <div class='i-carbon-user-certification text-primary'></div>
+        <Input value={videoUrl()} setValue={setVideoUrl} />
         <Button onClick={playVideo} title='播放' />
-        <Button onClick={sendMessage} title='发送' />
-        <Button onClick={closeRoom} title='关闭房间' />
+        </>
+          : null}
+
+        <ChatInput value={message()} setValue={setMessage} />
+        <div class='flex justify-end'>
+          <Button onClick={sendMessage} title='发送' class='w-20' />
+        </div>
+        {/* <Button onClick={closeRoom} title='关闭房间' /> */}
       </div>
     </div>
   )
