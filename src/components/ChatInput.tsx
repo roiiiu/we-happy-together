@@ -7,7 +7,7 @@ interface ChatInputProps {
 
 const ChatInput: Component<ChatInputProps> = (props) => {
   return (
-    <textarea class='outline-primary resize-none border rounded outline-2 h-20 p-2' value={props.value} onChange={(e) => { props.setValue(e.target.value) }} />
+    <input class='outline-primary w-full border rounded outline-2 p-2' value={props.value} onChange={(e) => { props.setValue(e.target.value) }} />
   )
 }
 

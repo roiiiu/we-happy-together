@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { useNavigate, useParams } from '@solidjs/router'
 import type { Component } from 'solid-js'
 import { For, createSignal, onMount } from 'solid-js'
@@ -19,6 +18,7 @@ const Id: Component = () => {
   const [message, setMessage] = createSignal('')
   const [videoUrl, setVideoUrl] = createSignal('')
   const [messageList, setMessageList] = createSignal<ChatMessage[]>([])
+  const [onlineUsers, setOnlineUsers] = createSignal<string[]>([])
   const navigate = useNavigate()
   let player: Artplayer
   let userId: string
@@ -37,7 +37,6 @@ const Id: Component = () => {
     const { data: usernameData } = await supabase.from('Users').select('*').eq('user_id', userData.user.id)
     if (usernameData && usernameData.length > 0)
       username = usernameData[0].username ?? ''
-    console.log(username)
 
     const { data } = await supabase.from('Auditorium').select('*').eq('room_id', id).eq('owner', userId)
     if (data && data.length > 0)
@@ -127,7 +126,6 @@ const Id: Component = () => {
 
   channel
     .on('broadcast', { event: 'chat-message' }, (payload) => {
-      console.log(payload)
       setMessageList(pre => [...pre, payload.payload])
     }).on('broadcast', { event: 'play' }, () => {
       player.play()
@@ -138,10 +136,11 @@ const Id: Component = () => {
     }).on('broadcast', { event: 'close-room' }, () => {
       navigate('/', { replace: true })
     })
-    .on('presence', { event: 'join' }, ({ key, newPresences }) => {
+    .on('presence', { event: 'join' }, async ({ newPresences }) => {
     })
     .on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
-    }).on(
+    })
+    .on(
       'postgres_changes',
       {
         event: 'UPDATE',
@@ -158,16 +157,18 @@ const Id: Component = () => {
       },
     )
     .subscribe(async (status) => {
-      if (status === 'SUBSCRIBED')
-        console.log('Successfully subscribed to room.')
-      await channel.track({
-        user: userId,
-        online_at: new Date().toLocaleTimeString(),
-      })
+      if (status === 'SUBSCRIBED') {
+        await channel.track({
+          user: userId,
+          online_at: new Date().toLocaleTimeString(),
+        })
+      }
     })
 
-  function sendMessage() {
-    channel.send({
+  async function sendMessage() {
+    if (!message())
+      return
+    await channel.send({
       type: 'broadcast',
       event: 'chat-message',
       payload: {
@@ -201,44 +202,65 @@ const Id: Component = () => {
   }
 
   return (
-    <div class='grid md:grid-cols-12 md:grid-rows-1 grid-rows-12 items-center justify-center h-full '>
-      <div class='flex flex-col h-full md:col-span-9 justify-start md:row-span-1 row-span-3'>
-        <div id="art-player" class='w-full h-auto aspect-ratio-video object-contain'></div>
-        {/* Room Information */}
-        <div class='flex-1 w-full flex items-center justify-start p-3 of-hidden border'>
-          <div class='flex items-start gap-2'>
-            <img src="/img.jpg" class='w-12 h-12 rounded-full'></img>
-            <div class='flex flex-col items-start'>
-              <h1 class='font-bold text-xl'>{id}</h1>
-              <h2 class=' '>Description,Description,Description,Description</h2>
+    <>
+      <div class='h-15 w-full flex justify-between items-center border-b px5'>
+        <button onClick={() => {
+          navigate('/', { replace: true })
+          channel.untrack()
+        }} class='px-3 py-2 hover:bg-gray-200 transition-colors duration-300 rounded'>
+          <div class='i-carbon-arrow-left' />
+        </button>
+        {/* <div class='flex'>
+          <For each={onlineUsers()}>
+            {(user, idx) => (
+              <Audience username={user} />
+            )}
+          </For>
+        </div> */}
+      </div>
+      <div class='grid md:grid-cols-12 md:grid-rows-1 grid-rows-12 items-center justify-center h-full '>
+        <div class='flex flex-col h-full md:col-span-9 justify-start md:row-span-1 row-span-3'>
+          <div id="art-player" class='w-full h-auto aspect-ratio-video object-contain'></div>
+          {/* Room Information */}
+          <div class='flex-1 w-full flex items-start justify-start p-5 of-hidden border'>
+            <div class='flex items-start gap-2 '>
+              <img src="/img.jpg" class='w-12 h-12 rounded-full'></img>
+              <div class='flex flex-col items-start'>
+                <h1 class='font-bold text-xl'>{id}</h1>
+                <h2 class=' '>Description,Description,Description,Description</h2>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-      {/* Chat */}
-      <div class='flex flex-col md:col-span-3 md:row-span-1 row-span-9 h-full gap-2 p-3'>
-        <div class='flex flex-col flex-1 of-y-auto'>
-          <For each={messageList()}>
-            {(message, idx) => (
-              <ChatBubble username={message.username} message={message.message}/>
-            )}
-          </For>
-        </div>
-        {isAdmin()
-          ? <>
-        <div class='i-carbon-user-certification text-primary'></div>
-        <Input value={videoUrl()} setValue={setVideoUrl} />
-        <Button onClick={playVideo} title='播放' />
-        </>
-          : null}
+        {/* Chat */}
+        <div class='flex flex-col md:col-span-3 md:row-span-1 row-span-9 h-full gap-2 p-3'>
+          <div class='flex flex-col flex-1 of-y-auto'>
+            <For each={messageList()}>
+              {(message, idx) => (
+                <ChatBubble username={message.username} message={message.message} />
+              )}
+            </For>
+          </div>
+          {isAdmin()
+            ? <>
+              <Input value={videoUrl()} setValue={setVideoUrl} />
+              <Button onClick={playVideo} title='播放' />
+            </>
+            : null}
 
-        <ChatInput value={message()} setValue={setMessage} />
-        <div class='flex justify-end'>
-          <Button onClick={sendMessage} title='发送' class='w-20' />
+          <form onSubmit={(e) => {
+            e.preventDefault()
+            sendMessage()
+          }} class='flex flex-col gap-2'>
+            <ChatInput value={message()} setValue={setMessage} />
+            <div class='flex justify-end'>
+              <Button type='submit' title='发送' class='w-20' />
+            </div>
+          </form>
+          {/* <Button onClick={closeRoom} title='关闭房间' /> */}
         </div>
-        {/* <Button onClick={closeRoom} title='关闭房间' /> */}
       </div>
-    </div>
+    </>
   )
 }
 

@@ -6,11 +6,16 @@ export default defineConfig({
     colors: {
       primary: {
         DEFAULT: '#FF9000',
+        deep: '#E38000',
       },
       text: {
         DEFAULT: '#FFFFFF',
         dark: '#000000',
       },
+      link: {
+        DEFAULT: '#00B6D6',
+      },
+      important: '#FF605C',
     },
   },
   presets: [
