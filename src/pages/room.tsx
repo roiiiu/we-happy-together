@@ -3,7 +3,7 @@ import type { Component } from 'solid-js'
 
 const Room: Component = () => {
   return (
-  <div class='flex h-screen w-full'>
+  <div class='h-screen w-full p-8'>
     <Outlet/>
   </div>
   )
