@@ -7,48 +7,46 @@ import { AuthGuard } from '../../utils/auth'
 import RoomSide from '~/components/RoomSide'
 import RoomInfo from '~/components/RoomInfo'
 import RoomNav from '~/components/RoomNav'
+import { roomStore, updateRoom, updateRoomAdmin, updateRoomVideoUrl } from '~/stores/roomStore'
+import { WatchRoom } from '~/types'
 
 const Id: Component = () => {
   AuthGuard()
   const { id } = useParams<{ id: string }>()
   const channel = supabase.channel(id)
-  const [isAdmin, setIsAdmin] = createSignal(false)
-  const [message, setMessage] = createSignal('')
-  const [videoUrl, setVideoUrl] = createSignal('')
   const [username, setUsername] = createSignal('')
-  const [onlineUsers, setOnlineUsers] = createSignal<string[]>([])
   const navigate = useNavigate()
-  let player: Artplayer
+  let art: Artplayer
   let userId: string
+  let artRef: any
 
   onMount(async () => {
-    const { data: roomData } = await supabase.from('Auditorium').select('*').eq('room_id', id)
-    if (!roomData || roomData.length === 0)
-      navigate('/', { replace: true })
-
     const { data: userData } = await supabase.auth.getUser()
     if (!userData.user)
       return
-
     userId = userData.user.id
+
+    const { data: roomData } = await supabase.from('WatchRoom').select('*').eq('room_id', id)
+    if (!roomData || roomData.length === 0) {
+      navigate('/', { replace: true })
+      return
+    }
+    else {
+      updateRoom(roomData[0] as WatchRoom)
+      updateRoomAdmin(roomStore.room.owner === userId)
+    }
+
+    initPlayer()
+
     const { data: usernameData } = await supabase.from('Users').select('*').eq('user_id', userData.user.id)
     if (usernameData && usernameData.length > 0)
       setUsername(usernameData[0].username ?? '')
-
-    const { data } = await supabase.from('Auditorium').select('*').eq('room_id', id).eq('owner', userId)
-    if (data && data.length > 0)
-      setIsAdmin(true)
-
-    const { data: videoUrl } = await supabase.from('Auditorium').select('video_url').eq('room_id', id)
-    if (videoUrl && videoUrl.length > 0)
-      setVideoUrl(videoUrl[0].video_url ?? '')
-    initPlayer()
   })
 
   async function initPlayer() {
-    player = new Artplayer({
-      container: '#art-player',
-      url: videoUrl(),
+    art = new Artplayer({
+      container: artRef,
+      url: roomStore.room.video_url,
       volume: 0.5,
       pip: true,
       autoSize: false,
@@ -56,13 +54,12 @@ const Id: Component = () => {
       loop: true,
       flip: true,
       controls: [
-
         {
           position: 'right',
           html: '<div i-carbon-renew></div>',
           tooltip: '同步',
           click: function (...args) {
-            !isAdmin() && asynchronous()
+            !roomStore.isAdmin && asynchronous()
           },
         }
       ],
@@ -76,58 +73,50 @@ const Id: Component = () => {
       moreVideoAttr: {
         crossOrigin: 'anonymous',
       },
-    })
-    player.on('play', async () => {
-      if (isAdmin()) {
+    },
+      function onReady() {
+        this.currentTime = roomStore.room.current_time
+        roomStore.room.is_paused ? this.pause() : this.play()
+      }
+    )
+
+    if (roomStore.isAdmin) {
+      art.on('play', async () => {
         channel.send({
           type: 'broadcast',
           event: 'play',
           payload: '',
         })
-        await supabase.from('Auditorium').update({ is_paused: false }).eq('room_id', id)
+        await supabase.from('WatchRoom').update({ is_paused: false }).eq('room_id', id)
       }
-    })
-    player.on('pause', async () => {
-      if (isAdmin()) {
+      )
+      art.on('pause', async () => {
         channel.send({
           type: 'broadcast',
           event: 'pause',
           payload: '',
         })
-        await supabase.from('Auditorium').update({ is_paused: true }).eq('room_id', id)
-      }
-    })
-    player.on('seek', () => {
-      if (isAdmin()) {
+        await supabase.from('WatchRoom').update({ is_paused: true }).eq('room_id', id)
+      })
+      art.on('seek', () => {
         channel.send({
           type: 'broadcast',
           event: 'seeked',
-          payload: player.currentTime,
+          payload: art.currentTime,
         })
-      }
-    })
-
-    const { data } = await supabase.from('Auditorium').select('current_time, is_paused').eq('room_id', id)
-    if (data) {
-      player.currentTime = data[0].current_time
-      if (data[0].is_paused)
-        player.pause()
-      else
-        player.play()
+      })
+      art.on('video:timeupdate', async () => {
+        await supabase.from('WatchRoom').update({ current_time: art.currentTime }).eq('room_id', id)
+      })
     }
-
-    player.on('video:timeupdate', async () => {
-      if (isAdmin())
-        await supabase.from('Auditorium').update({ current_time: player.currentTime }).eq('room_id', id)
-    })
   }
 
   channel.on('broadcast', { event: 'play' }, () => {
-    player.play()
+    art.play()
   }).on('broadcast', { event: 'pause' }, () => {
-    player.pause()
+    art.pause()
   }).on('broadcast', { event: 'seeked' }, (payload) => {
-    player.currentTime = payload.payload
+    art.currentTime = payload.payload
   }).on('broadcast', { event: 'close-room' }, () => {
     navigate('/', { replace: true })
   })
@@ -140,14 +129,14 @@ const Id: Component = () => {
       {
         event: 'UPDATE',
         schema: 'public',
-        table: 'Auditorium',
+        table: 'WatchRoom',
         filter: `room_id=eq.${id}`,
       },
       (payload) => {
-        if (!player.url.includes(payload.new.video_url)) {
-          setVideoUrl(payload.new.video_url)
-          player.url = payload.new.video_url
-          player.play()
+        if (!art.url.includes(payload.new.video_url)) {
+          updateRoomVideoUrl(payload.new.video_url)
+          art.url = payload.new.video_url
+          art.play()
         }
       },
     )
@@ -166,41 +155,35 @@ const Id: Component = () => {
       event: 'close-room',
       payload: '',
     })
-    await supabase.from('Auditorium').delete().eq('room_id', id)
+    await supabase.from('WatchRoom').delete().eq('room_id', id)
     navigate('/', { replace: true })
   }
 
   async function asynchronous() {
-    const { data } = await supabase.from('Auditorium').select('*').eq('room_id', id)
+    const { data } = await supabase.from('WatchRoom').select('*').eq('room_id', id)
     if (data && data.length > 0) {
-      player.currentTime = data[0].current_time + 0.4
-      console.log(data[0].is_paused, player.playing);
-      if (!player.playing && !data[0].is_paused) {
-        player.play()
+      art.currentTime = data[0].current_time + 0.4
+      if (!art.playing && !data[0].is_paused) {
+        art.play()
       }
     }
   }
 
   async function playVideo() {
-    if (!videoUrl())
-      return
-    await supabase.from('Auditorium').update({ video_url: videoUrl() }).eq('room_id', id)
+    await supabase.from('WatchRoom').update({ video_url: roomStore.room.video_url }).eq('room_id', id)
   }
 
   return (
     <div class='h-full w-full flex flex-col'>
-      <RoomNav isAdmin={isAdmin()} roomId={id} />
-      <div class='flex flex-1 flex-col h-full md:flex-row'>
-        <div class='flex-1 flex flex-col'>
+      <RoomNav />
+      <div class='h-full flex flex-1 flex-col md:flex-row'>
+        <div class='flex flex-1 flex-col'>
           {/* Player */}
-          <div id="art-player" class='w-full h-auto aspect-ratio-video object-contain' />
-          <RoomInfo id={id} />
+          <div ref={artRef} class='aspect-ratio-video h-auto w-full object-contain' />
+          <RoomInfo />
         </div>
         {/* Chat */}
         <RoomSide
-          isAdmin={isAdmin()}
-          videoUrl={videoUrl()}
-          setVideoUrl={setVideoUrl}
           playVideo={playVideo}
           username={username()}
           channel={channel}

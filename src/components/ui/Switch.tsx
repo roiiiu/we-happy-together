@@ -1,4 +1,5 @@
-import { Motion } from "@motionone/solid";
+import gsap from 'gsap';
+import { createEffect, onMount } from 'solid-js';
 
 interface SwitchProps {
   checked: boolean;
@@ -6,20 +7,22 @@ interface SwitchProps {
 }
 
 const Switch = (props: SwitchProps) => {
+  const tl = gsap.timeline({ paused: true, ease: 'linear' })
+  let bgRef: any;
+  let toggleRef: any
+
   return (
-    <Motion.button
-      animate={{ backgroundColor: props.checked ? '#FF9000' : 'rgb(229,231,225)' }}
-      onClick={() => { props.onChange(!props.checked) }}
-      class="rounded-full w-10 h-5 border flex relative bg-gray-200 items-center" >
-      <Motion.button
-        animate={{
-          left: props.checked ? 'calc(100% - 1.125rem)' : '0.125rem',
-        }}
-        transition={{
-          duration: 0.2,
-        }}
-        class={`rounded-full h-4 w-4 absolute left-0.5 bg-white transition-all`} />
-    </Motion.button>
+    <label
+      ref={bgRef}
+      onClick={() => {
+        props.onChange(!props.checked)
+      }}
+      class={`rounded-full w-10 h-5 border flex relative items-center ${props.checked ? 'bg-primary' : 'bg-gray-200 '}`} >
+      <label
+        ref={toggleRef}
+        class={`rounded-full h-3.5 w-3.5 absolute bg-white ${props.checked ? 'right-0.5' : 'left-0.5'
+          }`} />
+    </label>
   )
 }
 

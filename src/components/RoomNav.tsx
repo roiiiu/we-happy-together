@@ -4,13 +4,10 @@ import Input from "./ui/Input";
 import Switch from "./ui/Switch";
 import { Portal } from "solid-js/web";
 import RoomSettings from "./RoomSettings";
+import { roomStore } from "~/stores/roomStore";
 
-interface Props {
-  isAdmin: boolean
-  roomId: string
-}
 
-const RoomNav: Component<Props> = (props) => {
+const RoomNav: Component = (props) => {
   const [settingsVisible, setSettingsVisible] = createSignal(false)
   const navigate = useNavigate()
 
@@ -21,14 +18,14 @@ const RoomNav: Component<Props> = (props) => {
       }} class='px-3 py-2 hover:bg-gray-200 transition-colors duration-300 rounded'>
         <div class='i-carbon-arrow-left' />
       </button>
-      <Show when={props.isAdmin}>
+      <Show when={roomStore.isAdmin}>
         <button onClick={() => { setSettingsVisible(true) }} class='px-3 py-2 hover:bg-gray-200 transition-colors duration-300 rounded'>
           <div class="i-carbon-settings" />
         </button>
       </Show>
       {/* Settings */}
       <Show when={settingsVisible()}>
-        <RoomSettings setSettingsVisible={setSettingsVisible} roomId={props.roomId} />
+        <RoomSettings setSettingsVisible={setSettingsVisible} />
       </Show>
 
     </div>

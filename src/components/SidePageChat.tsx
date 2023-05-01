@@ -10,14 +10,10 @@ interface Props {
 }
 
 const SidePageChat: Component<Props> = (props) => {
-
-
-
-
   return (
     <div class="relative flex-1">
       <div class="absolute inset-0 flex flex-col">
-        <div class='p-3 of-auto flex-1 min-h-0'>
+        <div class='min-h-0 flex-1 of-auto p-3'>
           <For each={props.messageList}>
             {message => (
               <ChatBubble username={message.username} message={message.message} />

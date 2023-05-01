@@ -25,11 +25,10 @@ const Index: Component = () => {
       return
 
     const { data, error } = await supabase
-      .from('Auditorium')
+      .from('WatchRoom')
       .insert([
         { room_id: roomId(), owner: res.user.id, is_public: true },
       ])
-
     if (error)
       return
 
@@ -37,20 +36,20 @@ const Index: Component = () => {
   }
 
   async function joinRoom() {
-    const { data, error } = await supabase.from('Auditorium').select('*').eq('room_id', joinRoomId())
-
+    const { data, error } = await supabase.from('WatchRoom').select('*').eq('room_id', joinRoomId())
     if (data && data.length > 0)
       navigate(`/room/${joinRoomId()}`)
-    else
+    else {
       alert('房间不存在')
+    }
   }
 
   return (
-    <div class='flex flex-col h-screen w-full items-center justify-center'>
-      <div class='w-80 h-90 border shadow-lg rounded-lg flex flex-col p-5 justify-between'>
+    <div class='h-screen w-full flex flex-col items-center justify-center'>
+      <div class='h-90 w-80 flex flex-col justify-between border rounded-lg p-5 shadow-lg'>
         <Input label='房间id' value={roomId()} setValue={setRoomId} />
         <Button onClick={createRoom} title={'创建房间'} />
-        <Input label='房间id' value={joinRoomId()} setValue={ setJoinRoomId} />
+        <Input label='房间id' value={joinRoomId()} setValue={setJoinRoomId} />
         <Button onClick={joinRoom} title={'加入房间'} />
         <Button onClick={logout} title={'登出'} />
       </div>

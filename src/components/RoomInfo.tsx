@@ -1,16 +1,13 @@
 import type { Component } from 'solid-js'
+import { roomStore } from '~/stores/roomStore'
 
-interface Props {
-  id: string
-}
-
-const RoomInfo: Component<Props> = (props) => {
+const RoomInfo: Component = (props) => {
   return (
-    <div class='flex-1 w-full flex items-start justify-start p-3 b-b items-center of-hidden'>
-      <img src="/img.jpg" class='w-12 h-12 rounded-full' />
-      <div class='of-hidden ml-2'>
-        <h1 class='font-bold text-xl'>{props.id}</h1>
-        <h2 class='truncate'>Description,Description,Description,Description</h2>
+    <div class='w-full flex flex-1 items-start items-center justify-start of-hidden b-b p-3'>
+      <img src="/img.jpg" class='h-12 w-12 rounded-full' />
+      <div class='ml-2 of-hidden'>
+        <h1 class='text-xl font-bold'>{roomStore.room.room_name}</h1>
+        <h2 class='truncate text-sm'>{roomStore.room.description}</h2>
       </div>
     </div>
   )

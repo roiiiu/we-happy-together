@@ -4,6 +4,7 @@
     "solid"
   ],
   "extends": [
-    "plugin:solid/recommended"
+    "plugin:solid/recommended",
+    "@unocss"
   ]
 }

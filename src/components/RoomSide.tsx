@@ -9,11 +9,9 @@ import SideTabs from './SideTabs'
 import type { ChatMessage } from '~/types'
 import SidePageChat from './SidePageChat'
 import SidePagePlaylist from './SidePagePlaylist'
+import { roomStore, updateRoomVideoUrl } from '~/stores/roomStore'
 
 interface Props {
-  isAdmin: boolean
-  videoUrl: string
-  setVideoUrl: (_: string) => void
   playVideo: () => void
   channel: RealtimeChannel
   username: string
@@ -48,14 +46,14 @@ const RoomSide: Component<Props> = (props) => {
   }
 
   return (
-    <div class='md:w-1/4 b-x h-full flex flex-col gap-2 of-hidden'>
-      <SideTabs isAdmin={props.isAdmin} selectedTab={selectedTab()} setSelectedTab={setSelectedTab} />
+    <div class='h-full flex flex-col gap-2 of-hidden b-x md:w-1/4'>
+      <SideTabs selectedTab={selectedTab()} setSelectedTab={setSelectedTab} />
       <Switch>
         <Match when={selectedTab() === 0}>
           <SidePageChat messageList={messageList()} sendMessage={sendMessage} />
         </Match>
         <Match when={selectedTab() === 1}>
-          <SidePagePlaylist setVideoUrl={props.setVideoUrl} videoUrl={props.videoUrl} playVideo={props.playVideo} />
+          <SidePagePlaylist playVideo={props.playVideo} />
         </Match>
       </Switch>
     </div>
