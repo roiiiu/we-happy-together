@@ -6,6 +6,7 @@ import supabase from '../../utils/supabase'
 import { AuthGuard } from '../../utils/auth'
 import RoomSide from '~/components/RoomSide'
 import RoomInfo from '~/components/RoomInfo'
+import RoomNav from '~/components/RoomNav'
 
 const Id: Component = () => {
   AuthGuard()
@@ -51,7 +52,6 @@ const Id: Component = () => {
       volume: 0.5,
       pip: true,
       autoSize: false,
-      autoMini: true,
       setting: true,
       loop: true,
       flip: true,
@@ -173,7 +173,7 @@ const Id: Component = () => {
   async function asynchronous() {
     const { data } = await supabase.from('Auditorium').select('*').eq('room_id', id)
     if (data && data.length > 0) {
-      player.currentTime = data[0].current_time
+      player.currentTime = data[0].current_time + 0.4
       console.log(data[0].is_paused, player.playing);
       if (!player.playing && !data[0].is_paused) {
         player.play()
@@ -188,18 +188,12 @@ const Id: Component = () => {
   }
 
   return (
-    <>
-      <div class='h-15 w-full flex justify-between items-center border-b px5'>
-        <button onClick={() => {
-          navigate('/', { replace: true })
-        }} class='px-3 py-2 hover:bg-gray-200 transition-colors duration-300 rounded'>
-          <div class='i-carbon-arrow-left' />
-        </button>
-      </div>
-      <div class='grid md:grid-cols-12 md:grid-rows-1 grid-rows-12 items-center justify-center h-full '>
-        <div class='flex flex-col h-full md:col-span-9 justify-start md:row-span-1 row-span-3'>
+    <div class='h-full w-full flex flex-col'>
+      <RoomNav />
+      <div class='flex flex-1 flex-col h-full md:flex-row'>
+        <div class='flex-1 flex flex-col'>
+          {/* Player */}
           <div id="art-player" class='w-full h-auto aspect-ratio-video object-contain' />
-          {/* Room Information */}
           <RoomInfo id={id} />
         </div>
         {/* Chat */}
@@ -212,7 +206,7 @@ const Id: Component = () => {
           channel={channel}
         />
       </div>
-    </>
+    </div>
   )
 }
 

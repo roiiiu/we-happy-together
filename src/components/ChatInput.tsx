@@ -4,7 +4,7 @@ import Input from './ui/Input'
 import { RealtimeChannel } from '@supabase/supabase-js'
 
 interface ChatInputProps {
-  sendMessage: (value: string) => Promise<void>
+  sendMessage: (value: string) => void
 }
 
 const ChatForm: Component<ChatInputProps> = (props) => {
@@ -15,9 +15,9 @@ const ChatForm: Component<ChatInputProps> = (props) => {
       e.preventDefault()
       await props.sendMessage(message())
       setMessage('')
-    }} class='flex flex-col gap-2 p-3 b-t'>
+    }} class='gap-2 p-3 b-t flex flex-col'>
       <Input value={message()} setValue={setMessage} />
-      <div class='flex justify-end'>
+      <div class='md:flex justify-end hidden'>
         <Button type='submit' title='发送' class='w-20' />
       </div>
     </form>

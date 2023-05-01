@@ -4,7 +4,7 @@ import type { Component } from 'solid-js'
 const Room: Component = () => {
   const navigate = useNavigate()
   return (
-    <div class='absolute inset-0 flex flex-col'>
+    <div class='absolute inset-0'>
       <Outlet />
     </div>
   )

@@ -21,20 +21,43 @@ interface Props {
 
 const RoomSide: Component<Props> = (props) => {
   const [selectedTab, setSelectedTab] = createSignal(0)
+  const [messageList, setMessageList] = createSignal<ChatMessage[]>([])
+
+  props.channel
+    .on('broadcast', { event: 'chat-message' }, (payload) => {
+      setMessageList(pre => [...pre, payload.payload])
+    })
+
+  async function sendMessage(message: string) {
+    if (!message)
+      return
+    await props.channel.send({
+      type: 'broadcast',
+      event: 'chat-message',
+      payload: {
+        username: props.username,
+        message: message,
+      },
+    })
+    setMessageList(pre => [...pre,
+    {
+      username: props.username,
+      message: message,
+    },
+    ])
+  }
 
   return (
-    <div class='flex flex-col md:col-span-3 md:row-span-1 row-span-9 h-full gap-2 b-l'>
+    <div class='md:w-1/4 b-x h-full flex flex-col gap-2 of-hidden'>
       <SideTabs isAdmin={props.isAdmin} selectedTab={selectedTab()} setSelectedTab={setSelectedTab} />
-      <div class='flex flex-col flex-1'>
-        <Switch>
-          <Match when={selectedTab() === 0}>
-            <SidePageChat username={props.username} channel={props.channel} />
-          </Match>
-          <Match when={selectedTab() === 1}>
-            <SidePagePlaylist setVideoUrl={props.setVideoUrl} videoUrl={props.videoUrl} playVideo={props.playVideo} />
-          </Match>
-        </Switch>
-      </div>
+      <Switch>
+        <Match when={selectedTab() === 0}>
+          <SidePageChat messageList={messageList()} sendMessage={sendMessage} />
+        </Match>
+        <Match when={selectedTab() === 1}>
+          <SidePagePlaylist setVideoUrl={props.setVideoUrl} videoUrl={props.videoUrl} playVideo={props.playVideo} />
+        </Match>
+      </Switch>
     </div>
   )
 }
