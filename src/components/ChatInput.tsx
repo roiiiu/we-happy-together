@@ -1,14 +1,27 @@
-import type { Component } from 'solid-js'
+import { Component, createSignal } from 'solid-js'
+import Button from './ui/Button'
+import Input from './ui/Input'
+import { RealtimeChannel } from '@supabase/supabase-js'
 
 interface ChatInputProps {
-  value: string
-  setValue: (value: string) => void
+  sendMessage: (value: string) => Promise<void>
 }
 
-const ChatInput: Component<ChatInputProps> = (props) => {
+const ChatForm: Component<ChatInputProps> = (props) => {
+  const [message, setMessage] = createSignal('')
+
   return (
-    <input class='outline-primary w-full border rounded outline-2 p-2' value={props.value} onChange={(e) => { props.setValue(e.target.value) }} />
+    <form onSubmit={async (e) => {
+      e.preventDefault()
+      await props.sendMessage(message())
+      setMessage('')
+    }} class='flex flex-col gap-2 p-3 b-t'>
+      <Input value={message()} setValue={setMessage} />
+      <div class='flex justify-end'>
+        <Button type='submit' title='发送' class='w-20' />
+      </div>
+    </form>
   )
 }
 
-export default ChatInput
+export default ChatForm
