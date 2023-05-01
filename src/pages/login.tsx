@@ -33,7 +33,7 @@ const Login: Component = () => {
         <Input type='password' label='密码' value={password()} setValue={setPassword} />
         <div class='flex flex-col text-sm gap-1'>
           <Button title='登录' onClick={login} />
-          <a class='text-blue-6' href='register'>注册</a>
+          <a class='text-primary' cursor-pointer onClick={() => { navigate('/register') }}>注册</a>
         </div>
       </div>
     </div>

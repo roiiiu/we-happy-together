@@ -14,7 +14,7 @@ const Input: Component<InputProps> = (props) => {
       <Show when={props.label}>
         <p class='text-sm op60'>{props.label}</p>
       </Show>
-      <input type={props.type} class='border outline-primary rounded outline-2 h-10 px-2' value={props.value} onChange={(e) => { props.setValue(e.target.value) }}/>
+      <input type={props.type} class='border outline-primary rounded outline-2 h-10 px-2' value={props.value} onChange={(e) => { props.setValue(e.target.value) }} />
     </div>
   )
 }
