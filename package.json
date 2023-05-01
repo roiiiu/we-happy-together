@@ -12,6 +12,7 @@
     "lint:fix": "eslint . --fix"
   },
   "dependencies": {
+    "@motionone/solid": "^10.16.0",
     "@solidjs/router": "^0.8.2",
     "@supabase/supabase-js": "^2.21.0",
     "artplayer": "^5.0.4",

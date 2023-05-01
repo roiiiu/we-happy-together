@@ -189,7 +189,7 @@ const Id: Component = () => {
 
   return (
     <div class='h-full w-full flex flex-col'>
-      <RoomNav />
+      <RoomNav isAdmin={isAdmin()} roomId={id} />
       <div class='flex flex-1 flex-col h-full md:flex-row'>
         <div class='flex-1 flex flex-col'>
           {/* Player */}
