@@ -15,7 +15,9 @@
     "@solidjs/router": "^0.8.2",
     "@supabase/supabase-js": "^2.21.0",
     "artplayer": "^5.0.4",
+    "axios": "^1.4.0",
     "gsap": "^3.11.5",
+    "hls.js": "^1.4.0",
     "solid-js": "^1.7.3"
   },
   "devDependencies": {

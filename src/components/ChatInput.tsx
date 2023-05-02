@@ -1,10 +1,9 @@
 import { Component, createSignal } from 'solid-js'
 import Button from './ui/Button'
 import Input from './ui/Input'
-import { RealtimeChannel } from '@supabase/supabase-js'
 
 interface ChatInputProps {
-  sendMessage: (value: string) => void
+  sendMessage: (value: string) => Promise<void>
 }
 
 const ChatForm: Component<ChatInputProps> = (props) => {
@@ -15,9 +14,9 @@ const ChatForm: Component<ChatInputProps> = (props) => {
       e.preventDefault()
       await props.sendMessage(message())
       setMessage('')
-    }} class='gap-2 p-3 b-t flex flex-col'>
+    }} class='flex flex-col gap-2 b-t p-3'>
       <Input value={message()} setValue={setMessage} />
-      <div class='md:flex justify-end hidden'>
+      <div class='hidden justify-end md:flex'>
         <Button type='submit' title='发送' class='w-20' />
       </div>
     </form>

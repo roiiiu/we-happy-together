@@ -45,7 +45,7 @@ const Index: Component = () => {
   }
 
   return (
-    <div class='h-screen w-full flex flex-col items-center justify-center'>
+    <div class='h-screen w-full flex items-center justify-center'>
       <div class='h-90 w-80 flex flex-col justify-between border rounded-lg p-5 shadow-lg'>
         <Input label='房间id' value={roomId()} setValue={setRoomId} />
         <Button onClick={createRoom} title={'创建房间'} />

@@ -52,7 +52,7 @@ const RoomSettings: Component<Props> = (props) => {
             <Switch checked={isPublic()} onChange={checked => setIsPublic(checked)} />
           </div>
           <div class="w-full flex justify-end pt-5">
-            <Button title="保存" class="h-7 rounded" onClick={() => { handleSave() }} />
+            <Button title="保存" class="h-8 rounded" onClick={() => { handleSave() }} />
           </div>
         </div>
       </div>

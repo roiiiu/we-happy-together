@@ -1,13 +1,9 @@
-import gsap from 'gsap';
-import { createEffect, onMount } from 'solid-js';
-
 interface SwitchProps {
   checked: boolean;
   onChange: (checked: boolean) => void;
 }
 
 const Switch = (props: SwitchProps) => {
-  const tl = gsap.timeline({ paused: true, ease: 'linear' })
   let bgRef: any;
   let toggleRef: any
 

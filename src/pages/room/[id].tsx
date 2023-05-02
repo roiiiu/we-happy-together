@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from '@solidjs/router'
 import type { Component } from 'solid-js'
-import { createSignal, onMount } from 'solid-js'
+import { onMount } from 'solid-js'
 import Artplayer from 'artplayer'
 import supabase from '../../utils/supabase'
 import { AuthGuard } from '../../utils/auth'
@@ -9,12 +9,13 @@ import RoomInfo from '~/components/RoomInfo'
 import RoomNav from '~/components/RoomNav'
 import { roomStore, updateRoom, updateRoomAdmin, updateRoomVideoUrl } from '~/stores/roomStore'
 import { WatchRoom } from '~/types'
+import { updateUserName } from '~/stores/userStore'
+import Hls from 'hls.js'
 
 const Id: Component = () => {
   AuthGuard()
   const { id } = useParams<{ id: string }>()
   const channel = supabase.channel(id)
-  const [username, setUsername] = createSignal('')
   const navigate = useNavigate()
   let art: Artplayer
   let userId: string
@@ -40,8 +41,9 @@ const Id: Component = () => {
 
     const { data: usernameData } = await supabase.from('Users').select('*').eq('user_id', userData.user.id)
     if (usernameData && usernameData.length > 0)
-      setUsername(usernameData[0].username ?? '')
+      updateUserName(usernameData[0].username ?? '')
   })
+
 
   async function initPlayer() {
     art = new Artplayer({
@@ -53,13 +55,31 @@ const Id: Component = () => {
       setting: true,
       loop: true,
       flip: true,
+      type: "m3u8",
+      customType: {
+        m3u8: function (video: HTMLMediaElement, url: string) {
+          const hls = new Hls()
+          hls.loadSource(url)
+          hls.attachMedia(video)
+          if (!video.src) {
+            video.src = url
+          }
+        },
+      },
       controls: [
         {
           position: 'right',
           html: '<div i-carbon-renew></div>',
-          tooltip: '同步',
+          tooltip: !roomStore.isAdmin ? '同步' : '同步观众进度',
           click: function (...args) {
-            !roomStore.isAdmin && asynchronous()
+            if (!roomStore.isAdmin)
+              asynchronous()
+            else
+              channel.send({
+                type: 'broadcast',
+                event: 'seeked',
+                payload: this.currentTime,
+              })
           },
         }
       ],
@@ -119,27 +139,17 @@ const Id: Component = () => {
     art.currentTime = payload.payload
   }).on('broadcast', { event: 'close-room' }, () => {
     navigate('/', { replace: true })
+  }).on('broadcast', { event: 'change-video' }, (payload) => {
+    if (!art.url.includes(payload.payload)) {
+      art.url = payload.payload
+      updateRoomVideoUrl(payload.payload)
+      art.play()
+    }
   })
     .on('presence', { event: 'join' }, async ({ newPresences }) => {
     })
     .on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
     })
-    .on(
-      'postgres_changes',
-      {
-        event: 'UPDATE',
-        schema: 'public',
-        table: 'WatchRoom',
-        filter: `room_id=eq.${id}`,
-      },
-      (payload) => {
-        if (!art.url.includes(payload.new.video_url)) {
-          updateRoomVideoUrl(payload.new.video_url)
-          art.url = payload.new.video_url
-          art.play()
-        }
-      },
-    )
     .subscribe(async (status) => {
       if (status === 'SUBSCRIBED') {
         await channel.track({
@@ -169,8 +179,16 @@ const Id: Component = () => {
     }
   }
 
-  async function playVideo() {
-    await supabase.from('WatchRoom').update({ video_url: roomStore.room.video_url }).eq('room_id', id)
+  async function playVideo(url: string) {
+    art.url = url
+    await supabase.from('WatchRoom').update({ video_url: url }).eq('room_id', id)
+    channel.send({
+      type: 'broadcast',
+      event: 'change-video',
+      payload: url,
+    })
+    updateRoomVideoUrl(url)
+    art.play()
   }
 
   return (
@@ -185,7 +203,6 @@ const Id: Component = () => {
         {/* Chat */}
         <RoomSide
           playVideo={playVideo}
-          username={username()}
           channel={channel}
         />
       </div>

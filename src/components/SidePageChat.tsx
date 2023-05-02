@@ -1,12 +1,11 @@
-import { Component, For, createSignal } from "solid-js";
+import { Component, For } from "solid-js";
 import ChatBubble from "./ui/ChatBubble";
 import { ChatMessage } from "~/types";
 import ChatInput from "./ChatInput";
-import { RealtimeChannel } from "@supabase/supabase-js";
 
 interface Props {
   messageList: ChatMessage[]
-  sendMessage: (_: string) => void
+  sendMessage: (_: string) => Promise<void>
 }
 
 const SidePageChat: Component<Props> = (props) => {
