@@ -1,5 +1,5 @@
 import { useNavigate } from '@solidjs/router'
-import type { Component } from 'solid-js'
+import { Component } from 'solid-js'
 import { createSignal } from 'solid-js'
 import Button from '~/components/ui/Button'
 import Input from '~/components/ui/Input'
@@ -24,19 +24,22 @@ const Register: Component = () => {
       navigate('/login', { replace: true })
     }
   }
+
   return (
-    <div class='h-screen w-full flex items-center justify-center'>
-      <div class='w-80 h-90 rounded-lg border shadow-lg p-5 flex flex-col justify-between'>
+    <div
+      class='relative h-screen w-full flex items-center justify-center' >
+      <div
+        class='absolute h-100 w-80 flex flex-col justify-between border rounded-lg p-5 shadow-lg' >
         <Input label='邮箱' value={email()} setValue={setEmail} />
         <Input label='用户名' value={username()} setValue={serUsername} />
         <Input type='password' label='密码' value={password()} setValue={setPassword} />
         <Input type='password' label='确认密码' value={passwordConfirm()} setValue={setPasswordConfirm} />
-        <div class='flex flex-col text-sm gap-1'>
+        <div class='flex flex-col gap-1 text-sm'>
           <Button title="注册" onClick={register} />
           <a class='text-primary' cursor-pointer onClick={() => { navigate('/login') }}>登录</a>
         </div>
       </div>
-    </div>
+    </div >
   )
 }
 

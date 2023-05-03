@@ -79,7 +79,7 @@ const RoomSide: Component<Props> = (props) => {
   }
 
   return (
-    <div class='h-full flex flex-col gap-2 of-hidden b-x md:w-80'>
+    <div class='h-full flex flex-col of-hidden b-x md:w-80'>
       <SideTabs selectedTab={selectedTab()} setSelectedTab={setSelectedTab} />
       <Switch>
         <Match when={selectedTab() === 0}>

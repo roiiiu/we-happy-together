@@ -4,6 +4,7 @@ import { useNavigate } from '@solidjs/router'
 import supabase from '../utils/supabase'
 import Input from '~/components/ui/Input'
 import Button from '~/components/ui/Button'
+import { Motion } from '@motionone/solid'
 
 const Login: Component = () => {
   const [email, setEmail] = createSignal('')
@@ -27,11 +28,12 @@ const Login: Component = () => {
   }
 
   return (
-    <div class='flex flex-col items-center justify-center h-screen w-full'>
-      <div class='w-80 h-70 flex flex-col justify-between border shadow-lg p-5 rounded-lg'>
+    <div
+      class='h-screen w-full flex flex-col items-center justify-center'>
+      <div class='h-70 w-80 flex flex-col justify-between border rounded-lg p-5 shadow-lg'>
         <Input label='邮箱' value={email()} setValue={setEmail} />
         <Input type='password' label='密码' value={password()} setValue={setPassword} />
-        <div class='flex flex-col text-sm gap-1'>
+        <div class='flex flex-col gap-1 text-sm'>
           <Button title='登录' onClick={login} />
           <a class='text-primary' cursor-pointer onClick={() => { navigate('/register') }}>注册</a>
         </div>

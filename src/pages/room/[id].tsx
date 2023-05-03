@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from '@solidjs/router'
-import type { Component } from 'solid-js'
+import { Component, createEffect, onCleanup } from 'solid-js'
 import { onMount } from 'solid-js'
 import Artplayer from 'artplayer'
 import supabase from '../../utils/supabase'
@@ -18,14 +18,13 @@ const Id: Component = () => {
   const channel = supabase.channel(id)
   const navigate = useNavigate()
   let art: Artplayer
-  let userId: string
-  let artRef: any
+  let artRef: HTMLDivElement
 
   onMount(async () => {
     const { data: userData } = await supabase.auth.getUser()
     if (!userData.user)
       return
-    userId = userData.user.id
+    const userId = userData.user.id
 
     const { data: roomData } = await supabase.from('WatchRoom').select('*').eq('room_id', id)
     if (!roomData || roomData.length === 0) {
@@ -152,10 +151,6 @@ const Id: Component = () => {
     })
     .subscribe(async (status) => {
       if (status === 'SUBSCRIBED') {
-        await channel.track({
-          user: userId,
-          online_at: new Date().toLocaleTimeString(),
-        })
       }
     })
 
@@ -191,13 +186,17 @@ const Id: Component = () => {
     art.play()
   }
 
+  onCleanup(() => {
+    art?.destroy()
+  })
+
   return (
     <div class='h-full w-full flex flex-col'>
       <RoomNav />
       <div class='h-full flex flex-1 flex-col md:flex-row'>
         <div class='flex flex-1 flex-col'>
           {/* Player */}
-          <div ref={artRef} class='aspect-ratio-video h-auto max-h-3xl w-full object-contain' />
+          <div ref={artRef!} class='aspect-ratio-video h-auto max-h-3xl w-full object-contain' />
           <RoomInfo />
         </div>
         {/* Chat */}

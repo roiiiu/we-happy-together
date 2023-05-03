@@ -41,12 +41,12 @@ const SidePagePlaylist: Component<Props> = (props) => {
             )}
           </For>
         </div>
-        <div class="flex flex-col gap-2 b-t p-3">
+        {/* <div class="flex flex-col gap-2 b-t p-3">
           <Input value={(url())} setValue={setUrl} />
           <div class="flex justify-end">
             <Button onClick={() => { props.playVideo(url()) }} title='播放' class="w-20" />
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
 

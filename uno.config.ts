@@ -8,6 +8,10 @@ export default defineConfig({
         DEFAULT: '#FF9000',
         deep: '#E38000',
       },
+      back: {
+        DEFAULT: '#FFFFFF',
+        dark: '#000000',
+      },
       text: {
         DEFAULT: '#FFFFFF',
         dark: '#000000',
