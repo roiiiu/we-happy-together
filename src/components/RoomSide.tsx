@@ -15,7 +15,7 @@ interface Props {
 
 const ax = axios.create({
   baseURL: 'https://zhongpeiying.com:5244',
-  timeout: 1000,
+  timeout: 30000,
 })
 
 const fetchList = async (path: string) => {
