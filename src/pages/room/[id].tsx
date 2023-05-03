@@ -197,7 +197,7 @@ const Id: Component = () => {
       <div class='h-full flex flex-1 flex-col md:flex-row'>
         <div class='flex flex-1 flex-col'>
           {/* Player */}
-          <div ref={artRef} class='aspect-ratio-video h-auto w-full object-contain' />
+          <div ref={artRef} class='aspect-ratio-video h-auto max-h-3xl w-full object-contain' />
           <RoomInfo />
         </div>
         {/* Chat */}

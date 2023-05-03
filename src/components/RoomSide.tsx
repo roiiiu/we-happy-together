@@ -30,7 +30,7 @@ const RoomSide: Component<Props> = (props) => {
   const [selectedTab, setSelectedTab] = createSignal(0)
   const [messageList, setMessageList] = createSignal<ChatMessage[]>([])
   const [path, setPath] = createSignal('/WHT-Public')
-  const [list] = createResource(path, fetchList, {})
+  const [list] = createResource(path, fetchList)
   const hasParent = () => path() !== '/WHT-Public'
 
   props.channel
@@ -79,7 +79,7 @@ const RoomSide: Component<Props> = (props) => {
   }
 
   return (
-    <div class='h-full flex flex-col gap-2 of-hidden b-x md:w-1/4'>
+    <div class='h-full flex flex-col gap-2 of-hidden b-x md:w-80'>
       <SideTabs selectedTab={selectedTab()} setSelectedTab={setSelectedTab} />
       <Switch>
         <Match when={selectedTab() === 0}>

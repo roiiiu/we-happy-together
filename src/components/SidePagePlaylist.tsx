@@ -1,4 +1,4 @@
-import { Component, For, Show, createSignal } from "solid-js";
+import { Component, For, Match, Show, Switch, createSignal } from "solid-js";
 import Button from "./ui/Button";
 import Input from "./ui/Input";
 import { roomStore, updateRoomVideoUrl } from "~/stores/roomStore";
@@ -19,13 +19,23 @@ const SidePagePlaylist: Component<Props> = (props) => {
   return (
     <div class="relative flex-1">
       <div class="absolute inset-0 flex flex-col">
-        <div class="min-h-0 flex flex-1 flex-col of-auto p-3" >
-          <Show when={props.hasParent}>
-            <button onClick={props.onNavBack} class="mb-2 px-3 text-start text-sm text-primary">上一级</button>
+        <div class="min-h-0 flex-1 of-auto p-3" >
+          <Show when={props.hasParent} fallback={
+            <div class="mb-2 block px-3 text-start text-sm text-primary">目录</div>
+          }>
+            <button onClick={props.onNavBack} class="mb-2 block px-3 text-start text-sm text-primary">上一级</button>
           </Show>
           <For each={props.list}>
             {(item, idx) => (
-              <button onClick={() => { props.checkDicOrFile(item) }} class="of-hidden rounded px-3 text-start text-sm hover:bg-gray-200">
+              <button onClick={() => { props.checkDicOrFile(item) }} class="block w-full flex items-center gap-2 of-hidden truncate rounded px-3 py-1 text-start text-sm hover:bg-gray-200">
+                <Switch>
+                  <Match when={item.is_dir}>
+                    <span class="i-carbon-folder text-primary" />
+                  </Match>
+                  <Match when={item.type === 2}>
+                    <span class="i-carbon-video text-primary" />
+                  </Match>
+                </Switch>
                 {item.name}
               </button>
             )}
