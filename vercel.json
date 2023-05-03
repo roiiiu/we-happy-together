@@ -5,7 +5,7 @@
       "destination": "/index.html"
     },
     {
-      "source": "/alistApi/:path*",
+      "source": "/api/:path*",
       "destination": "https://zhongpeiying.com:5244/api/:path*"
     }
   ]

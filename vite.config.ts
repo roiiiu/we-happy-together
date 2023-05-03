@@ -18,10 +18,10 @@ export default defineConfig({
   server: {
     port: 3000,
     proxy: {
-      '/alistApi': {
+      '/api': {
         target: 'https://zhongpeiying.com:5244/api',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/alistApi/, ''),
+        rewrite: (path) => path.replace(/^\/api/, ''),
       },
     }
   },

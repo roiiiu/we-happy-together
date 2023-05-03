@@ -13,9 +13,14 @@ interface Props {
   channel: RealtimeChannel
 }
 
+const ax = axios.create({
+  baseURL: 'https://zhongpeiying.com:5244',
+  timeout: 1000,
+})
+
 const fetchList = async (path: string) => {
   return new Promise(async (resolve, reject) => {
-    axios.post<BaseResp<List>>('/alistApi/fs/list', { path: path }).then((resp) => {
+    ax.post<BaseResp<List>>('/api/fs/list', { path: path }).then((resp) => {
       if (resp.data.code === 200) {
         resolve(resp.data.data.content)
       }
@@ -63,7 +68,7 @@ const RoomSide: Component<Props> = (props) => {
     }
     else {
       const pathName = path() + '/' + item.name
-      const data = await axios.post('/alistApi/fs/other', {
+      const data = await ax.post('/api/fs/other', {
         path: pathName, method: "video_preview"
       })
       const list = data.data.data.video_preview_play_info.live_transcoding_task_list
