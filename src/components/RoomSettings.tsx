@@ -8,6 +8,7 @@ import { roomStore, updateRoomDescription, updateRoomName, updateRoomPublic } fr
 
 interface Props {
   setSettingsVisible: (visible: boolean) => void
+  onCloseRoom: () => void
 }
 
 const RoomSettings: Component<Props> = (props) => {
@@ -16,7 +17,7 @@ const RoomSettings: Component<Props> = (props) => {
   const [isPublic, setIsPublic] = createSignal(roomStore.room.is_public ?? false)
 
 
-  async function handleSave() {
+  async function onSave() {
     const { error } = await supabase.from('WatchRoom').update({
       is_public: isPublic(),
       room_name: roomName(),
@@ -51,8 +52,9 @@ const RoomSettings: Component<Props> = (props) => {
             <p class="text-sm">公开放映厅</p>
             <Switch checked={isPublic()} onChange={checked => setIsPublic(checked)} />
           </div>
-          <div class="w-full flex justify-end pt-5">
-            <Button title="保存" class="h-8 rounded" onClick={() => { handleSave() }} />
+          <div class="w-full flex justify-between pt-5">
+            <Button title="关闭放映厅" class="bg-important hover:bg-important-deep" onClick={props.onCloseRoom} />
+            <Button title="保存" class="bg-primary hover:bg-primary-deep" onClick={() => { onSave() }} />
           </div>
         </div>
       </div>

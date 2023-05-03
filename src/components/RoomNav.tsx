@@ -3,8 +3,11 @@ import { Component, Show, createSignal } from "solid-js";
 import RoomSettings from "./RoomSettings";
 import { roomStore } from "~/stores/roomStore";
 
+interface Props {
+  onCloseRoom: () => void
+}
 
-const RoomNav: Component = (props) => {
+const RoomNav: Component<Props> = (props) => {
   const [settingsVisible, setSettingsVisible] = createSignal(false)
   const navigate = useNavigate()
 
@@ -22,7 +25,7 @@ const RoomNav: Component = (props) => {
       </Show>
       {/* Settings */}
       <Show when={settingsVisible()}>
-        <RoomSettings setSettingsVisible={setSettingsVisible} />
+        <RoomSettings onCloseRoom={props.onCloseRoom} setSettingsVisible={setSettingsVisible} />
       </Show>
 
     </div>

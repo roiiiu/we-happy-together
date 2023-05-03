@@ -19,7 +19,10 @@ export default defineConfig({
       link: {
         DEFAULT: '#00B6D6',
       },
-      important: '#FF605C',
+      important: {
+        DEFAULT: '#FF605C',
+        deep: '#E03E3C',
+      },
     },
   },
   presets: [

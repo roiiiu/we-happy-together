@@ -27,7 +27,14 @@ const Index: Component = () => {
     const { data, error } = await supabase
       .from('WatchRoom')
       .insert([
-        { room_id: roomId(), owner: res.user.id, is_public: true },
+        {
+          room_id: roomId(),
+          owner: res.user.id,
+          is_public: true,
+          is_paused: false,
+          room_name: '放映厅' + roomId(),
+          description: '这是一个放映厅',
+        },
       ])
     if (error)
       return
@@ -48,10 +55,10 @@ const Index: Component = () => {
     <div class='h-screen w-full flex items-center justify-center'>
       <div class='h-90 w-80 flex flex-col justify-between border rounded-lg p-5 shadow-lg'>
         <Input label='房间id' value={roomId()} setValue={setRoomId} />
-        <Button onClick={createRoom} title={'创建房间'} />
+        <Button onClick={createRoom} title={'创建房间'} class='bg-primary hover:bg-primary-deep' />
         <Input label='房间id' value={joinRoomId()} setValue={setJoinRoomId} />
-        <Button onClick={joinRoom} title={'加入房间'} />
-        <Button onClick={logout} title={'登出'} />
+        <Button onClick={joinRoom} title={'加入房间'} class='bg-primary hover:bg-primary-deep' />
+        <Button onClick={logout} title={'登出'} class='bg-primary hover:bg-primary-deep' />
       </div>
     </div>
   )

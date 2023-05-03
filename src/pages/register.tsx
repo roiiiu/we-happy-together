@@ -35,7 +35,7 @@ const Register: Component = () => {
         <Input type='password' label='密码' value={password()} setValue={setPassword} />
         <Input type='password' label='确认密码' value={passwordConfirm()} setValue={setPasswordConfirm} />
         <div class='flex flex-col gap-1 text-sm'>
-          <Button title="注册" onClick={register} />
+          <Button title="注册" onClick={register} class='bg-primary hover:bg-primary-deep' />
           <a class='text-primary' cursor-pointer onClick={() => { navigate('/login') }}>登录</a>
         </div>
       </div>

@@ -47,7 +47,8 @@ const Id: Component = () => {
   async function initPlayer() {
     art = new Artplayer({
       container: artRef,
-      url: roomStore.room.video_url,
+      url: roomStore.room.video_url ?? '',
+      autoplay: true,
       volume: 0.5,
       pip: true,
       autoSize: false,
@@ -192,7 +193,7 @@ const Id: Component = () => {
 
   return (
     <div class='h-full w-full flex flex-col'>
-      <RoomNav />
+      <RoomNav onCloseRoom={closeRoom} />
       <div class='h-full flex flex-1 flex-col md:flex-row'>
         <div class='flex flex-1 flex-col'>
           {/* Player */}

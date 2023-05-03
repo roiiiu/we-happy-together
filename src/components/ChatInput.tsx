@@ -17,7 +17,7 @@ const ChatForm: Component<ChatInputProps> = (props) => {
     }} class='flex flex-col gap-2 b-t p-3'>
       <Input value={message()} setValue={setMessage} />
       <div class='hidden justify-end md:flex'>
-        <Button type='submit' title='发送' class='w-20' />
+        <Button type='submit' title='发送' class='w-20 bg-primary hover:bg-primary-deep' />
       </div>
     </form>
   )
