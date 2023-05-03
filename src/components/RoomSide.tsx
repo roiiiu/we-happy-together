@@ -15,7 +15,7 @@ interface Props {
 
 const fetchList = async (path: string) => {
   return new Promise(async (resolve, reject) => {
-    axios.post<BaseResp<List>>('/api/fs/list', { path: path }).then((resp) => {
+    axios.post<BaseResp<List>>('/alistApi/fs/list', { path: path }).then((resp) => {
       if (resp.data.code === 200) {
         resolve(resp.data.data.content)
       }
@@ -63,7 +63,7 @@ const RoomSide: Component<Props> = (props) => {
     }
     else {
       const pathName = path() + '/' + item.name
-      const data = await axios.post('/api/fs/other', {
+      const data = await axios.post('/alistApi/fs/other', {
         path: pathName, method: "video_preview"
       })
       const list = data.data.data.video_preview_play_info.live_transcoding_task_list
