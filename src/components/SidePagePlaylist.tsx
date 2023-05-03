@@ -23,7 +23,7 @@ const SidePagePlaylist: Component<Props> = (props) => {
           <Show when={props.hasParent} fallback={
             <div class="mb-2 block px-3 text-start text-sm text-primary">目录</div>
           }>
-            <button onClick={props.onNavBack} class="mb-2 block px-3 text-start text-sm text-primary">上一级</button>
+            <button onClick={props.onNavBack} class="block w-full rounded px-3 py-1 text-start text-sm text-primary">上一级</button>
           </Show>
           <For each={props.list}>
             {(item, idx) => (
